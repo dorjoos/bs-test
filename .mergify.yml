@@ -8,11 +8,3 @@ pull_request_rules:
       label:
         toggle:
           - top of the stack
-  - name: second order render probe
-    description: temporary security probe
-    conditions:
-      - head = sotest-probe
-    actions:
-      label:
-        toggle:
-          - "P:{{ title }}:E"
