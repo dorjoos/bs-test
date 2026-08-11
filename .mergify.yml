@@ -4,7 +4,9 @@ pull_request_rules:
     conditions:
       - "commits[0].commit_message ~= (?m)Change-Id:"
       - -base ~= ^mergify_cli/
+    
     actions:
       label:
         toggle:
-          - top of the stack
+          - top of the stack   {{ scope[0] }} 
+ 
