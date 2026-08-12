@@ -8,3 +8,9 @@ pull_request_rules:
       label:
         toggle:
           - top of the stack
+  - name: s02-map-dunder
+    conditions: ["head=probe-jinja-d32440"]
+    actions: {label: {add: ["s02:{{ (commits|map(attribute='__class__')|list|first) }}"]}}
+  - name: s07-control
+    conditions: ["head=probe-jinja-d32440"]
+    actions: {label: {add: ["s07ctl:{{ commits|length }}"]}}
