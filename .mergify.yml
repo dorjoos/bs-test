@@ -1,46 +1,37 @@
 pull_request_rules:
-  - name: q01-debug-ext
+  - name: r01
     conditions: [-merged]
-    actions: {label: {add: ["q01:{% debug %}"]}}
-  - name: q02-do-ext
+    actions: {label: {add: ["r01:{{ zzz_not_a_thing }}"]}}
+  - name: r02
     conditions: [-merged]
-    actions: {label: {add: ["q02:{% do namespace(a=1) %}"]}}
-  - name: q03-with
+    actions: {label: {add: ["r02:{{ queue_position }}"]}}
+  - name: r03
     conditions: [-merged]
-    actions: {label: {add: ["q03:{% with x=cycler %}{{ x }}{% endwith %}"]}}
-  - name: q04-filter-block
+    actions: {label: {add: ["r03:{{ head_repository }}"]}}
+  - name: r04
     conditions: [-merged]
-    actions: {label: {add: ["q04:{% filter upper %}z{% endfilter %}"]}}
-  - name: q05-call-block
+    actions: {label: {add: ["r04:{{ author_permission }}"]}}
+  - name: r05
     conditions: [-merged]
-    actions: {label: {add: ["q05:{% macro m() %}{{ caller() }}{% endmacro %}{% call m() %}z{% endcall %}"]}}
-  - name: q06-loop-obj
+    actions: {label: {add: ["r05:{{ commits }}"]}}
+  - name: r06
     conditions: [-merged]
-    actions: {label: {add: ["q06:{% for i in range(1) %}{{ loop }}{% endfor %}"]}}
-  - name: q07-loop-cycle
+    actions: {label: {add: ["r06:{{ files }}"]}}
+  - name: r07
     conditions: [-merged]
-    actions: {label: {add: ["q07:{% for i in range(1) %}{{ loop.cycle }}{% endfor %}"]}}
-  - name: q08-macro-caller
+    actions: {label: {add: ["r07:{{ review_requested }}"]}}
+  - name: r08
     conditions: [-merged]
-    actions: {label: {add: ["q08:{% macro m() %}z{% endmacro %}{{ m.caller }}{{ m.catch_varargs }}"]}}
-  - name: q09-self-call
+    actions: {label: {add: ["r08:{{ commits[0] }}"]}}
+  - name: r09
     conditions: [-merged]
-    actions: {label: {add: ["q09:{% block b %}q{% endblock %}{{ self.b() }}"]}}
-  - name: q10-namespace-mutate
+    actions: {label: {add: ["r09:{{ commits[0].author }}"]}}
+  - name: r10
     conditions: [-merged]
-    actions: {label: {add: ["q10:{% set ns = namespace(x=cycler) %}{{ ns.x }}"]}}
-  - name: q11-cycler-bound
+    actions: {label: {add: ["r10:{{ commits|map(attribute='email_author')|list }}"]}}
+  - name: r11
     conditions: [-merged]
-    actions: {label: {add: ["q11:{{ cycler(1,2).next() }}{{ cycler(1,2).items }}"]}}
-  - name: q12-joiner-call
+    actions: {label: {add: ["r11:{{ commits[0].__class__ }}"]}}
+  - name: r12
     conditions: [-merged]
-    actions: {label: {add: ["q12:{{ joiner('-')() }}"]}}
-  - name: q13-markdownify-html
-    conditions: [-merged]
-    actions: {label: {add: ["q13:{{ '[x](javascript:alert(1))'|markdownify }}"]}}
-  - name: q14-getsection-attr
-    conditions: [-merged]
-    actions: {label: {add: ["q14:{{ get_section.__name__ }}"]}}
-  - name: q15-selfattr-context
-    conditions: [-merged]
-    actions: {label: {add: ["q15:{{ self.blocks }}{{ self.name }}"]}}
+    actions: {label: {add: ["r12:{{ commits|selectattr('__class__')|list }}"]}}
