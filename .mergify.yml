@@ -1,37 +1,22 @@
 pull_request_rules:
-  - name: r01
+  - name: s01-selectattr-dunder
     conditions: [-merged]
-    actions: {label: {add: ["r01:{{ zzz_not_a_thing }}"]}}
-  - name: r02
+    actions: {label: {add: ["s01:{{ (commits|selectattr('__class__')|list|length) }}"]}}
+  - name: s02-map-dunder-first
     conditions: [-merged]
-    actions: {label: {add: ["r02:{{ queue_position }}"]}}
-  - name: r03
+    actions: {label: {add: ["s02:{{ (commits|map(attribute='__class__')|list|first) }}"]}}
+  - name: s03-map-doc
     conditions: [-merged]
-    actions: {label: {add: ["r03:{{ head_repository }}"]}}
-  - name: r04
+    actions: {label: {add: ["s03:{{ (commits|map(attribute='__doc__')|list|first) }}"]}}
+  - name: s04-sort-dunder
     conditions: [-merged]
-    actions: {label: {add: ["r04:{{ author_permission }}"]}}
-  - name: r05
+    actions: {label: {add: ["s04:{{ (commits|sort(attribute='__class__')|list|length) }}"]}}
+  - name: s05-groupby-dunder
     conditions: [-merged]
-    actions: {label: {add: ["r05:{{ commits }}"]}}
-  - name: r06
+    actions: {label: {add: ["s05:{{ (commits|groupby('__class__')|list|length) }}"]}}
+  - name: s06-files-map-dunder
     conditions: [-merged]
-    actions: {label: {add: ["r06:{{ files }}"]}}
-  - name: r07
+    actions: {label: {add: ["s06:{{ (files|map(attribute='__class__')|list|first) }}"]}}
+  - name: s07-control-len
     conditions: [-merged]
-    actions: {label: {add: ["r07:{{ review_requested }}"]}}
-  - name: r08
-    conditions: [-merged]
-    actions: {label: {add: ["r08:{{ commits[0] }}"]}}
-  - name: r09
-    conditions: [-merged]
-    actions: {label: {add: ["r09:{{ commits[0].author }}"]}}
-  - name: r10
-    conditions: [-merged]
-    actions: {label: {add: ["r10:{{ commits|map(attribute='email_author')|list }}"]}}
-  - name: r11
-    conditions: [-merged]
-    actions: {label: {add: ["r11:{{ commits[0].__class__ }}"]}}
-  - name: r12
-    conditions: [-merged]
-    actions: {label: {add: ["r12:{{ commits|selectattr('__class__')|list }}"]}}
+    actions: {label: {add: ["s07-control:{{ commits|length }}"]}}
